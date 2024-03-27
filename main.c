@@ -12,17 +12,37 @@
 
 #include "ROM.h"
 
+/* ALLOCATE THE DESIGNATED MEMORY FOR THE ROM BUFFER */
+/* ASSUME A STACK SIZE OF 16 BYTES TO DISCERN THE SIZE OF THE BUFFER INITIALLY */
+
 char ROM_BUFFER(const char* RELEASE, char* BUFFER)
 {
+    struct ROM_OPTION* ROM_BASE;
+    strncpy(BUFFER, RELEASE, 16);
 
+    ROM_BASE->RELEASE_BUFFER[16] = sizeof(ROM_BASE->RELEASE_BUFFER) / sizeof(ROM_BASE->RELEASE_BUFFER[0]);
+    return BUFFER;
 }
+
+/* AFTER THE INTIAL ROM STACK INSTANTIATION */
+/* THE PROGRAM WILL BEGIN TO SCAN THROUGH THE HEADER TO EVALUATE */ 
+/* THE RELEASE DATE BASED ON THE BUFFER */
 
 void ROM_PROC_OPTION(const char* RELEASE)
 {
+    struct ROM_OPTION* ROM_BASE;
+    ROM_BUFFER(RELEASE, sizeof(ROM_BASE->RELEASE_BUFFER));
 
+    fprintf(stdout, "Domestic Release Date: %s\n", ROM_BASE->RELEASE_BUFFER);
 }
 
 int main(int argc, char* argv[])
 {
-    
+    /* CHECK TO SEE IF THE CORRECT ARGS ARE PRESENT */
+
+    if(argc != 2)
+    {
+        fprintf("Usage: %s <ROM file path>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
 }
