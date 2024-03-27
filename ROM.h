@@ -16,6 +16,8 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 
 #define     MAX_VALUE_LENGTH        128
 #define     MAX_ROM_HEADER_SIZE     2048
@@ -26,11 +28,20 @@ typedef struct ROM_OPTION
     char* ROM_VALUE[MAX_VALUE_LENGTH];
 
     const char* RELEASE_DATE;
-    char* RELEASE_BUFFER[16];
+    char* RELEASE_BUFFER[17];
 
     size_t ROM_READ_BUFFER;
     size_t ROM_START;
     size_t ROM_END;
+    size_t ROM_OFFSET;
+    size_t ROM_BYTES;
+
+    union FILES
+    {
+        FILE* ROM_FILE;
+        char ROM_FILE_HEADER;
+        
+    } FILES;
 
 } ROM_OPTION;
 
