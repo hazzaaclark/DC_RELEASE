@@ -12,6 +12,8 @@
 
 #include "ROM.h"
 
+#undef USE_ROM_PRAGMAS
+
 /* ALLOCATE THE DESIGNATED MEMORY FOR THE ROM BUFFER */
 /* ASSUME A STACK SIZE OF 16 BYTES TO DISCERN THE SIZE OF THE BUFFER INITIALLY */
 
@@ -38,11 +40,21 @@ void ROM_PROC_OPTION(const char* RELEASE)
 
 int main(int argc, char* argv[])
 {
+    struct ROM_OPTION* ROM_BASE;
+
     /* CHECK TO SEE IF THE CORRECT ARGS ARE PRESENT */
 
     if(argc != 2)
     {
         fprintf("Usage: %s <ROM file path>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    ROM_BASE->FILES.ROM_FILE = fopen_s(argv[1], "rb");
+    
+    if(ROM_BASE->FILES.ROM_FILE == NULL)
+    {
+        fprintf(stderr, "No Dreamcast ROM file was found\n");
         return EXIT_FAILURE;
     }
 }
