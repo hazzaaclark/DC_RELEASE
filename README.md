@@ -24,6 +24,16 @@ Not to mention, the GDI stores the dedicated BIN file for the game itself.
 
 From here, this program will look inside of the provided command-line argument under the assumption of a MAX_BUFFER where the signature for the release date resides
 
+
+# Building:
+
+As of right now:
+git clone, this repo
+
+cd into your new directory and refer back to the demonstration at the beginning of the README
+
 Sources:
 
 - [Dreamcast GDI Layout](https://multimedia.cx/eggs/understanding-the-dreamcast-gd-rom-layout/)
+
+
