@@ -17,7 +17,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
+#if defined(USE_ROM_PRAGMAS)
+#define USE_ROM_PRAGMAS
+#else
+#define USE_ROM_PRAGMAS
 
 #define     MAX_VALUE_LENGTH        128
 #define     MAX_ROM_HEADER_SIZE     2048
@@ -26,26 +31,20 @@ typedef struct ROM_OPTION
 {
     char* ROM_KEY[MAX_VALUE_LENGTH];
     char* ROM_VALUE[MAX_VALUE_LENGTH];
-
+    char ROM_FILE_HEADER[MAX_ROM_HEADER_SIZE]; 
     const char* RELEASE_DATE;
-    char* RELEASE_BUFFER[17];
-
-    size_t ROM_READ_BUFFER;
     size_t ROM_START;
     size_t ROM_END;
-    size_t ROM_OFFSET;
+    size_t ROM_READ_BUFFER;
     size_t ROM_BYTES;
 
-    union FILES
-    {
-        FILE* ROM_FILE;
-        char ROM_FILE_HEADER;
-        
-    } FILES;
 
 } ROM_OPTION;
 
-char(*ROM_BUFFER(const char* RELEASE, char* BUFFER));
-void ROM_PROC_OPTION(const char* RELEASE);
+static char* ROM_BUFFER(const char* RELEASE, char* BUFFER);
+static void ROM_PROC_OPTION(const char* RELEASE);
+static int IS_VALID_DATE(const char* VALUE);
+int ROM_HEADER_OFFSET();
 
+#endif
 #endif
