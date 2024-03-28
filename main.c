@@ -17,7 +17,7 @@
 /* ALLOCATE THE DESIGNATED MEMORY FOR THE ROM BUFFER */
 /* ASSUME A STACK SIZE OF 16 BYTES TO DISCERN THE SIZE OF THE BUFFER INITIALLY */
 
-char* ROM_BUFFER(const char* RELEASE, char *BUFFER)
+static char* ROM_BUFFER(const char* RELEASE, char* BUFFER)
 {
     strncpy(BUFFER, RELEASE + 3, 16);
     BUFFER[16] = '\0';
@@ -28,77 +28,93 @@ char* ROM_BUFFER(const char* RELEASE, char *BUFFER)
 /* THE PROGRAM WILL BEGIN TO SCAN THROUGH THE HEADER TO EVALUATE */ 
 /* THE RELEASE DATE BASED ON THE BUFFER */
 
-void ROM_PROC_OPTION(const char* RELEASE)
+static void ROM_PROC_OPTION(const char* RELEASE) 
 {
     char RELEASE_BUFFER[17];
     ROM_BUFFER(RELEASE, RELEASE_BUFFER);
-
-    fprintf(stdout, "Domestic Release Date: %s\n", RELEASE_BUFFER);
+    printf("Domestic Release Date: %s\n", RELEASE_BUFFER);
 }
 
-/* DISCERN THE RANGE OF OFFSETS TO SEARCH FOR THE DESIGNATED SIGNATURE */
-/* THIS IS ASSUMING THAT WE DON'T HAVE CURRENT INFORMATION PERTAINING TOWARDS */
-/* THE SPECIFIC CHAR */
+/* A REALLY SCUFFED CHECK TO DETERMINE WHETHER THERE IS ANY AND ALL */
+/* LEGIBLE WHITESPACE IN BETWEEN CHARS */
 
-int ROM_HEADER_OFFSET()
+/* THIS IS BY ASSUMING AN ARBITRARY SIZE RESPECTIVE TO THE RELEASE DATE CHAR */
+/* THEN EVALUATING THE LENGTH */
+
+static int IS_VALID(const char* VALUE) 
 {
-    struct ROM_OPTION* ROM_BASE;
-
-    /* BASED ON THE OVERALL SIZE OF THE OFFSET, IN RELATION TO THE START AND END */
-    /* WE ASSUME THIS ARBITRARY LENGTH IN ORDER TO DISCERN WHERE ON THE HEADER TO LOOK FOR */
-
-    for(ROM_BASE->ROM_OFFSET = ROM_BASE->ROM_START; ROM_BASE->ROM_OFFSET <= ROM_BASE->ROM_END; ROM_BASE->ROM_OFFSET++)
+    for (size_t i = 0; i < 16; ++i) 
     {
-        /* WHEN THE LENGTH HAS BEEN DISCERNED, NULL TERMINATE THE STRING TO REDUCE TYPE COMPLEXITY */
-
-        char* RELEASE_LENGTH[17];
-        memcpy(RELEASE_LENGTH, ROM_BASE->FILES.ROM_FILE_HEADER + ROM_BASE->ROM_OFFSET, 16);
-        RELEASE_LENGTH[16] = '\0';
-
-        ROM_PROC_OPTION(RELEASE_LENGTH);
-        return EXIT_SUCCESS;
+        if (i % 3 != 2 && !(VALUE[i] == ' ' || (VALUE[i] >= '0' && VALUE[i] <= '9'))) 
+        {
+            return 0; 
+        }
     }
 
-    fprintf(stderr, "Unable to find a valid release signature in the Header\n");
-    return EXIT_FAILURE;
+    return 1; 
 }
 
-int main(int argc, char* argv[])
+
+int main(int argc, char *argv[]) 
 {
     struct ROM_OPTION* ROM_BASE;
 
-    /* CHECK TO SEE IF THE CORRECT ARGS ARE PRESENT */
+    /* ASSUME THAT ALL OF THE CORRECT COMMAND LINE ARGS ARE BEING PROVIDED */
 
-    if(argc != 2)
+    if (argc != 2) 
     {
         printf("Usage: %s <ROM file path>\n", argv[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    ROM_BASE->FILES.ROM_FILE = fopen(argv[1], "rb");
-    
-    if(ROM_BASE->FILES.ROM_FILE == NULL)
+    FILE *ROM_FILE = fopen(argv[1], "rb");
+    if (ROM_FILE == NULL) 
     {
-        fprintf(stderr, "No Dreamcast ROM file was found\n");
-        return EXIT_FAILURE;
+        printf("Error: Unable to open ROM file.\n");
+        return 1;
     }
 
-    
-    /* READ THE ROM HEADER, SET THE SEEK START METHOD TO BE AT THE ORIGIN */
-    /* FROM THERE, DISCERN HOW MANY BYTES NEED TO BE READ IN ORDER TO GET TO THE ENCLOSED RELEASE DATE LOGIC */
+    /* SEEK INTO THE CONTENTS OF THE PROVIDED FILE */
+    /* THIS WILL BE UNDER THE GUISE OF US NOT KNOWING WHAT THE DREAMCAST GDI'S */
+    /* OFFSET IS TO BEGIN WITH */
 
-    fseek(ROM_BASE->FILES.ROM_FILE, 0, SEEK_SET);
-    ROM_BASE->ROM_BYTES = fread(ROM_BASE->FILES.ROM_FILE_HEADER, 1, MAX_ROM_HEADER_SIZE, ROM_BASE->FILES.ROM_FILE);
+    /* FROM THERE, ALLOCATE THE DESIGNATED MEMORY FROM THE STRUCTURE TO ASSERTAIN THE START AND END OFFSETS */
 
-    if(ROM_BASE->ROM_BYTES != MAX_ROM_HEADER_SIZE)
+    fseek(ROM_FILE, 0, SEEK_SET);
+    ROM_BASE = malloc(sizeof(ROM_OPTION));
+
+    ROM_BASE->ROM_BYTES = fread(ROM_BASE->ROM_FILE_HEADER, 1, MAX_ROM_HEADER_SIZE, ROM_FILE);
+
+    if (ROM_BASE->ROM_BYTES != MAX_ROM_HEADER_SIZE) 
     {
-        fprintf(stderr, "Failed to read ROM Header %x\n");
-        fclose(ROM_BASE->FILES.ROM_FILE);
-        return EXIT_FAILURE;
+        printf("Error: Failed to read ROM header.\n");
+        fclose(ROM_FILE);
+        return 1;
     }
 
-    fclose(ROM_BASE->FILES.ROM_FILE);
+    fclose(ROM_FILE);
 
-    ROM_HEADER_OFFSET();
+    ROM_BASE->ROM_START = 0; 
+    ROM_BASE->ROM_END = MAX_ROM_HEADER_SIZE - 16;
 
+    /* ITERATE THROUGH ALL RESPECTIVE ELEMENTS OF THE HEADER */
+    /* INITIALLY, THE RELEASE CHAR WILL ACCOUNT FOR A 17 BIT BUFFER TO ACCOMODATE */
+    /* INTEGER OVERFLOW */
+
+    for (size_t OFFSET = ROM_BASE->ROM_START; OFFSET <= ROM_BASE->ROM_END; ++OFFSET) 
+    {
+        char RELEASE[17];
+        memcpy(RELEASE, ROM_BASE->ROM_FILE_HEADER + OFFSET, 16);
+        RELEASE[16] = '\0'; 
+
+        if (IS_VALID(RELEASE)) 
+        {
+            ROM_PROC_OPTION(RELEASE);
+            return 0; 
+        }
+    }
+
+    printf("Error: Unable to find a valid release date in the ROM header.\n");
+
+    return 1;
 }
