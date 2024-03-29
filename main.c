@@ -93,6 +93,7 @@ int main(int argc, char *argv[])
     }
 
     fclose(ROM_FILE);
+    free(ROM_FILE);
 
     ROM_BASE->ROM_START = 0; 
     ROM_BASE->ROM_END = MAX_ROM_HEADER_SIZE - 16;
@@ -105,7 +106,7 @@ int main(int argc, char *argv[])
     {
         char RELEASE[17];
         memcpy(RELEASE, ROM_BASE->ROM_FILE_HEADER + OFFSET, 16);
-        RELEASE[16] = '\0'; 
+        RELEASE[16] = '\0';
 
         if (IS_VALID(RELEASE)) 
         {
