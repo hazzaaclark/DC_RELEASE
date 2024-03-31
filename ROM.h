@@ -48,7 +48,7 @@ typedef struct ROM_OPTION
 
 static char* ROM_BUFFER(const char* RELEASE, char* BUFFER);
 static void ROM_PROC_OPTION(const char* RELEASE);
-static int IS_VALID_DATE(const char* VALUE);
+static bool IS_VALID_DATE(const char* VALUE);
 int ROM_HEADER_OFFSET();
 
 #endif
