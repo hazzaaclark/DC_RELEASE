@@ -14,6 +14,7 @@
 /* SYSTEM INCLUDES */
 
 #include <malloc.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,8 +28,12 @@
 #define     MAX_VALUE_LENGTH        128
 #define     MAX_ROM_HEADER_SIZE     2048
 
+#define     ROM_ITERATE_POS             2
+#define     ROM_ITERATE_OFF             3
+
 typedef struct ROM_OPTION 
 {
+    char RELEASE_BUFFER[17];
     char* ROM_KEY[MAX_VALUE_LENGTH];
     char* ROM_VALUE[MAX_VALUE_LENGTH];
     char ROM_FILE_HEADER[MAX_ROM_HEADER_SIZE]; 
