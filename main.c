@@ -85,10 +85,10 @@ int main(int argc, char *argv[])
     /* FROM THERE, ALLOCATE THE DESIGNATED MEMORY FROM THE STRUCTURE TO ASSERTAIN THE START AND END OFFSETS */
 
     fseek(ROM_FILE, 0, SEEK_SET);
-    ROM_BASE = malloc(sizeof(ROM_OPTION));
+    ROM_BASE = malloc(sizeof(struct ROM_OPTION));
 
     ROM_BASE->ROM_BYTES = fread(ROM_BASE->ROM_FILE_HEADER, 1, MAX_ROM_HEADER_SIZE, ROM_FILE);
-
+    
     if (ROM_BASE->ROM_BYTES != MAX_ROM_HEADER_SIZE) 
     {
         printf("Error: Failed to read ROM header.\n");
@@ -96,8 +96,6 @@ int main(int argc, char *argv[])
         free(ROM_BASE);
         return 1;
     }
-
-    fclose(ROM_FILE);
 
     ROM_BASE->ROM_START = 0; 
     ROM_BASE->ROM_END = MAX_ROM_HEADER_SIZE - 16;
@@ -121,6 +119,7 @@ int main(int argc, char *argv[])
 
     printf("Error: Unable to find a valid release date in the ROM header.\n");
 
+    free(ROM_BASE->ROM_FILE_HEADER);
     free(ROM_BASE);
     return 1;
 }
