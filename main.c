@@ -29,11 +29,16 @@ static char* ROM_BUFFER(const char* RELEASE, char* BUFFER)
 /* THE PROGRAM WILL BEGIN TO SCAN THROUGH THE HEADER TO EVALUATE */ 
 /* THE RELEASE DATE BASED ON THE BUFFER */
 
+/* THIS IS DONE BY PROVIDING RELEVANT STACK SPACE FOR THE ROM STRUCTURE */
+
 static void ROM_PROC_OPTION(const char* RELEASE) 
 {
-    char RELEASE_BUFFER[17];
-    ROM_BUFFER(RELEASE, RELEASE_BUFFER);
-    printf("Domestic Release Date: %s\n", RELEASE_BUFFER);
+    struct ROM_OPTION* ROM_BASE;
+
+    ROM_BASE = malloc(sizeof(ROM_OPTION));
+
+    ROM_BUFFER(RELEASE, ROM_BASE->RELEASE_BUFFER);
+    printf("Domestic Release Date: %s\n", ROM_BASE->RELEASE_BUFFER);
 }
 
 /* A REALLY SCUFFED CHECK TO DETERMINE WHETHER THERE IS ANY AND ALL */
@@ -93,6 +98,13 @@ int main(int argc, char *argv[])
     {
         printf("Error: Failed to read ROM header.\n");
         fclose(ROM_FILE);
+        free(ROM_BASE);
+        return 1;
+    }
+
+    if(ROM_PROC_OPTION == NULL)
+    {
+        printf("Error: Could not allocate designated memory for the ROM Header\n", stderr);
         free(ROM_BASE);
         return 1;
     }
