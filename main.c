@@ -17,10 +17,11 @@
 /* ALLOCATE THE DESIGNATED MEMORY FOR THE ROM BUFFER */
 /* ASSUME A STACK SIZE OF 16 BYTES TO DISCERN THE SIZE OF THE BUFFER INITIALLY */
 
+/* STRCPY GOVERNS NULL TERMINATION OF CHAR'S BY DEFAULT */
+
 static char* ROM_BUFFER(const char* RELEASE, char* BUFFER)
 {
-    strncpy(BUFFER, RELEASE + 3, 16);
-    BUFFER[16] = '\0';
+    strcpy(BUFFER, RELEASE + 3); 
     return BUFFER;
 }
 
@@ -41,19 +42,22 @@ static void ROM_PROC_OPTION(const char* RELEASE)
 /* THIS IS BY ASSUMING AN ARBITRARY SIZE RESPECTIVE TO THE RELEASE DATE CHAR */
 /* THEN EVALUATING THE LENGTH */
 
-static int IS_VALID(const char* VALUE) 
+static bool IS_VALID(const char* VALUE) 
 {
-    for (size_t i = 0; i < 16; ++i) 
+    size_t INDEX;
+    for (INDEX = 0; INDEX < 16; ++INDEX) 
     {
-        if (i % 3 != 2 && !(VALUE[i] == ' ' || (VALUE[i] >= '0' && VALUE[i] <= '9'))) 
+        if (INDEX % ROM_ITERATE_OFF == ROM_ITERATE_POS)
+            continue;
+
+        if (!(VALUE[INDEX] == ' ' || (VALUE[INDEX] >= '0' && VALUE[INDEX] <= '9'))) 
         {
-            return 0; 
+            return false; 
         }
     }
 
-    return 1; 
+    return true; 
 }
-
 
 int main(int argc, char *argv[]) 
 {
@@ -89,11 +93,11 @@ int main(int argc, char *argv[])
     {
         printf("Error: Failed to read ROM header.\n");
         fclose(ROM_FILE);
+        free(ROM_BASE);
         return 1;
     }
 
     fclose(ROM_FILE);
-    free(ROM_FILE);
 
     ROM_BASE->ROM_START = 0; 
     ROM_BASE->ROM_END = MAX_ROM_HEADER_SIZE - 16;
@@ -111,11 +115,12 @@ int main(int argc, char *argv[])
         if (IS_VALID(RELEASE)) 
         {
             ROM_PROC_OPTION(RELEASE);
-            return 0; 
+            return 0;
         }
     }
 
     printf("Error: Unable to find a valid release date in the ROM header.\n");
 
+    free(ROM_BASE);
     return 1;
 }
